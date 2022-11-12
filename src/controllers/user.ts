@@ -14,7 +14,7 @@ const createUser = (req: Request, res: Response) => {
 
   return User.create({ name, about, avatar })
     .then((user) => res.status(201).send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err || 'Произошла ошибка сервера' })); // TODO: изменить код ошибки
+    .catch((err) => res.status(500).send({ message: err.message || 'Произошла ошибка сервера' })); // TODO: изменить код ошибки
 };
 
 export { getUsers, getUserById, createUser };
