@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import validateUrl from '../assets/validate-url';
+import validateUrl from '../assets/validateUrl';
 
 interface ICard {
   name: string;
