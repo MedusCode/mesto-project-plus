@@ -38,6 +38,6 @@ const CardSchema = new Schema<ICard>({
     type: Date,
     default: Date.now,
   },
-});
+}, { versionKey: false });
 
 export default model<ICard>('card', CardSchema);

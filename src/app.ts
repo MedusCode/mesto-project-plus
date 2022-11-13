@@ -10,7 +10,8 @@ const server = express();
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 server.use(express.json());
+server.use(fakeAuth);
 server.use('/users', userRouter);
-server.use('/cards', fakeAuth, cardRouter);
+server.use('/cards', cardRouter);
 
 server.listen(PORT);

@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
 import Card from '../models/card';
+import { IUser } from '../models/user';
 
 const getCards = (req: Request, res: Response) => Card.find({})
+  .populate<IUser>('owner')
   .then((cards) => res.send({ data: cards }))
   .catch(() => res.status(500).send({ message: 'Произошла ошибка сервера' })); // TODO: центрелизовать ошибку
 
@@ -27,4 +29,38 @@ const deleteCard = (req: Request, res: Response) => {
     .catch((err) => res.status(500).send({ message: err.message || 'Произошла ошибка сервера' })); // TODO: статус ошибки
 };
 
-export { getCards, createCard, deleteCard };
+const likeCard = (req: Request, res: Response) => {
+  const { cardId } = req.params;
+
+  return Card.findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new Error('Фото не найдено');
+      }
+
+      return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+        .populate<IUser>('owner');
+    })
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: err.message || 'Произошла ошибка сервера' }));
+};
+
+const dislikeCard = (req: Request, res: Response) => {
+  const { cardId } = req.params;
+
+  return Card.findById(cardId)
+    .then((card) => {
+      if (!card) {
+        throw new Error('Фото не найдено');
+      }
+
+      return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
+        .populate<IUser>('owner');
+    })
+    .then((card) => res.send({ data: card }))
+    .catch((err) => res.status(500).send({ message: err.message || 'Произошла ошибка сервера' }));
+};
+
+export {
+  getCards, createCard, deleteCard, likeCard, dislikeCard,
+};

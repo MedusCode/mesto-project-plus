@@ -28,6 +28,7 @@ const UserSchema = new Schema<IUser>({
       message: 'avatar should be a URL',
     },
   },
-});
+}, { versionKey: false });
 
 export default model<IUser>('user', UserSchema);
+export { IUser };
