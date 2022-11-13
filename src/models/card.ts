@@ -41,3 +41,4 @@ const CardSchema = new Schema<ICard>({
 }, { versionKey: false });
 
 export default model<ICard>('card', CardSchema);
+export { ICard };

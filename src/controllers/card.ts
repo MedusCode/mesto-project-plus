@@ -1,6 +1,30 @@
 import { Request, Response } from 'express';
-import Card from '../models/card';
+import { ObjectId, UpdateQuery } from 'mongoose';
+import Card, { ICard } from '../models/card';
 import { IUser } from '../models/user';
+
+const handleLike = (res: Response, id: string | ObjectId, update: UpdateQuery<ICard>) => {
+  Card.findByIdAndUpdate(id, update, {
+    new: true,
+    runValidators: true,
+  })
+    .populate<IUser>('owner')
+    .then((card) => {
+      if (!card) {
+        const err = new Error('Карточка не найдена');
+        err.name = 'Not Found';
+        throw err;
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'Not Found' || err.name === 'CastError') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      res.status(500).send({ message: 'Произошла ошибка сервера' });
+    });
+};
 
 const getCards = (req: Request, res: Response) => Card.find({})
   .populate<IUser>('owner')
@@ -43,52 +67,12 @@ const deleteCard = (req: Request, res: Response) => {
 
 const likeCard = (req: Request, res: Response) => {
   const { cardId } = req.params;
-
-  return Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, {
-    new: true,
-    runValidators: true,
-  })
-    .populate<IUser>('owner')
-    .then((card) => {
-      if (!card) {
-        const err = new Error('Карточка не найдена');
-        err.name = 'Not Found';
-        throw err;
-      }
-      res.send({ data: card });
-    })
-    .catch((err) => {
-      if (err.name === 'Not Found' || err.name === 'CastError') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-        return;
-      }
-      res.status(500).send({ message: 'Произошла ошибка сервера' });
-    });
+  handleLike(res, cardId, { $addToSet: { likes: req.user._id } });
 };
 
 const dislikeCard = (req: Request, res: Response) => {
   const { cardId } = req.params;
-
-  return Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, {
-    new: true,
-    runValidators: true,
-  })
-    .populate<IUser>('owner')
-    .then((card) => {
-      if (!card) {
-        const err = new Error('Карточка не найдена');
-        err.name = 'Not Found';
-        throw err;
-      }
-      res.send({ data: card });
-    })
-    .catch((err) => {
-      if (err.name === 'Not Found' || err.name === 'CastError') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-        return;
-      }
-      res.status(500).send({ message: 'Произошла ошибка сервера' });
-    });
+  handleLike(res, cardId, { $pull: { likes: req.user._id } });
 };
 
 export {
