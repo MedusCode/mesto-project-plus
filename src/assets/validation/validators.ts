@@ -6,7 +6,10 @@ import { urlRegex } from './validateUrl';
 
 const idParamsValidator = (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
-  if (!Types.ObjectId.isValid(id)) next(new BadRequestError('Передан невозможный id'));
+  if (!Types.ObjectId.isValid(id)) {
+    next(new BadRequestError('Передан невозможный id'));
+    return;
+  }
   next();
 };
 
