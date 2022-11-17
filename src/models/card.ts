@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import validateUrl from '../assets/validateUrl';
+import { validateUrl } from '../assets/validation/validateUrl';
 
 interface ICard {
   name: string;
@@ -21,7 +21,7 @@ const CardSchema = new Schema<ICard>({
     required: true,
     validate: {
       validator: validateUrl,
-      message: 'photo should be a URL',
+      message: 'impossible URL',
     },
   },
   owner: {
